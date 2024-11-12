@@ -6,10 +6,23 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Repository provider implementation for GitLab.
+ */
+
 class GitlabRepositoryProvider implements RepositoryProviderInterface
 {
+    /**
+     * Search GitLab repositories based on a query string.
+     *
+     * @param string $query The search query.
+     * @return array The list of repositories.
+     */
+
     public function searchRepositories(string $query): array
     {
+        // Send a GET request to GitLab's projects API
+
         $response = Http::get('https://gitlab.com/api/v4/projects', [
             'search' => $query,
             'per_page' => 5,
@@ -17,12 +30,12 @@ class GitlabRepositoryProvider implements RepositoryProviderInterface
             'sort' => 'asc',
         ]);
 
-        // Vérifier si la requête a réussi
+        // Return an empty array if the request failed
         if ($response->failed()) {
-            // Vous pouvez gérer les erreurs ici, par exemple en lançant une exception ou en retournant un tableau vide
             return [];
         }
 
+        // Get the response data
         $items = $response->json() ?? [];
 
         $repositories = array_map(function ($item) {
